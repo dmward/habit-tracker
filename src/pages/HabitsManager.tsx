@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Plus, Library } from 'lucide-react';
-import { useHabitStore } from '../store/habitStore';
+import { format } from 'date-fns';
+import { useHabitStore, getCurrentMonth } from '../store/habitStore';
 import HabitList from '../components/habits/HabitList';
 import HabitForm from '../components/habits/HabitForm';
 import HabitSelector from '../components/habits/HabitSelector';
@@ -9,15 +10,24 @@ import Button from '../components/common/Button';
 export default function HabitsManager() {
   const [showCustomForm, setShowCustomForm] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
-  const habits = useHabitStore((state) => state.habits);
+  const { getCurrentMonthHabits } = useHabitStore();
 
-  const activeHabits = habits.filter((h) => !h.archived);
-  const archivedHabits = habits.filter((h) => h.archived);
+  const currentMonthHabits = getCurrentMonthHabits();
+  const activeHabits = currentMonthHabits.filter((h) => !h.archived);
+  const archivedHabits = currentMonthHabits.filter((h) => h.archived);
+
+  const currentMonth = getCurrentMonth();
+  const monthName = format(new Date(), 'MMMM yyyy');
 
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">Manage Habits</h1>
+        <div>
+          <h1 className="text-3xl font-bold">Manage Habits</h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            {monthName}
+          </p>
+        </div>
         <div className="flex gap-3">
           <Button
             variant="outline"
@@ -40,7 +50,9 @@ export default function HabitsManager() {
 
       {/* Active Habits */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Active Habits ({activeHabits.length})</h2>
+        <h2 className="text-xl font-semibold mb-4">
+          Active Habits for This Month ({activeHabits.length})
+        </h2>
         <HabitList habits={activeHabits} />
       </div>
 

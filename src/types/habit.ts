@@ -20,6 +20,7 @@ export interface Habit {
   reminderEnabled: boolean;
   createdAt: string; // ISO date
   archived: boolean;
+  month: string; // Format: "YYYY-MM" - the month this habit belongs to
 }
 
 export interface HabitCompletion {

@@ -4,15 +4,24 @@ import { v4 as uuidv4 } from 'uuid';
 import { format } from 'date-fns';
 import type { Habit, HabitCompletion } from '../types/habit';
 
+// Helper to get current month in YYYY-MM format
+export const getCurrentMonth = () => format(new Date(), 'yyyy-MM');
+
 interface HabitState {
   habits: Habit[];
   completions: HabitCompletion[];
 
   // Habit CRUD operations
-  addHabit: (habit: Omit<Habit, 'id' | 'createdAt'>) => void;
+  addHabit: (habit: Omit<Habit, 'id' | 'createdAt' | 'month'>, month?: string) => void;
   updateHabit: (id: string, updates: Partial<Habit>) => void;
   deleteHabit: (id: string) => void;
   archiveHabit: (id: string) => void;
+  carryOverHabit: (habitId: string, toMonth: string) => void;
+
+  // Month-specific queries
+  getHabitsForMonth: (month: string) => Habit[];
+  getCurrentMonthHabits: () => Habit[];
+  hasHabitsForMonth: (month: string) => boolean;
 
   // Completion operations
   toggleCompletion: (habitId: string, date: string) => void;
@@ -28,11 +37,12 @@ export const useHabitStore = create<HabitState>()(
       habits: [],
       completions: [],
 
-      addHabit: (habit) => {
+      addHabit: (habit, month) => {
         const newHabit: Habit = {
           ...habit,
           id: uuidv4(),
           createdAt: new Date().toISOString(),
+          month: month || getCurrentMonth(),
         };
         set((state) => ({
           habits: [...state.habits, newHabit],
@@ -60,6 +70,36 @@ export const useHabitStore = create<HabitState>()(
             habit.id === id ? { ...habit, archived: true } : habit
           ),
         }));
+      },
+
+      carryOverHabit: (habitId, toMonth) => {
+        const habit = get().habits.find((h) => h.id === habitId);
+        if (!habit) return;
+
+        const newHabit: Habit = {
+          ...habit,
+          id: uuidv4(),
+          createdAt: new Date().toISOString(),
+          month: toMonth,
+          archived: false,
+        };
+
+        set((state) => ({
+          habits: [...state.habits, newHabit],
+        }));
+      },
+
+      getHabitsForMonth: (month) => {
+        return get().habits.filter((h) => h.month === month);
+      },
+
+      getCurrentMonthHabits: () => {
+        const currentMonth = getCurrentMonth();
+        return get().habits.filter((h) => h.month === currentMonth);
+      },
+
+      hasHabitsForMonth: (month) => {
+        return get().habits.some((h) => h.month === month);
       },
 
       toggleCompletion: (habitId, date) => {
@@ -120,7 +160,7 @@ export const useHabitStore = create<HabitState>()(
     }),
     {
       name: 'habit-tracker-storage',
-      version: 1,
+      version: 2, // Increment version for migration
     }
   )
 );

@@ -12,10 +12,10 @@ interface DailyCheckInProps {
 }
 
 export default function DailyCheckIn({ onAddHabit }: DailyCheckInProps) {
-  const { habits, toggleCompletion, isHabitCompletedOnDate } = useHabitStore();
+  const { getCurrentMonthHabits, toggleCompletion, isHabitCompletedOnDate } = useHabitStore();
   const today = format(new Date(), 'yyyy-MM-dd');
 
-  const activeHabits = habits.filter((h) => !h.archived);
+  const activeHabits = getCurrentMonthHabits().filter((h) => !h.archived);
 
   const handleToggle = (habitId: string, habitName: string, currentlyCompleted: boolean) => {
     toggleCompletion(habitId, today);
