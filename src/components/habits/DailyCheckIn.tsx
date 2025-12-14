@@ -4,8 +4,10 @@ import { CheckCircle2, Circle, Plus, Minus } from 'lucide-react';
 import { useHabitStore } from '../../store/habitStore';
 import { HabitType } from '../../types/habit';
 import { CATEGORY_LABELS } from '../../constants/habits';
+import { useDateSelection } from '../../hooks/useDateSelection';
 import Card from '../common/Card';
 import Button from '../common/Button';
+import DateNavigator from '../calendar/DateNavigator';
 import toast from 'react-hot-toast';
 import clsx from 'clsx';
 
@@ -16,12 +18,12 @@ interface DailyCheckInProps {
 export default function DailyCheckIn({ onAddHabit }: DailyCheckInProps) {
   const { getCurrentMonthHabits, toggleCompletion, isHabitCompletedOnDate, setNumericValue, getNumericValue } = useHabitStore();
   const [numericInputs, setNumericInputs] = useState<Record<string, string>>({});
-  const today = format(new Date(), 'yyyy-MM-dd');
+  const { selectedDate } = useDateSelection();
 
   const activeHabits = getCurrentMonthHabits().filter((h) => !h.archived);
 
   const handleCheckboxToggle = (habitId: string, habitName: string, currentlyCompleted: boolean) => {
-    toggleCompletion(habitId, today);
+    toggleCompletion(habitId, selectedDate);
     if (!currentlyCompleted) {
       toast.success(`🎉 ${habitName} completed!`, {
         duration: 2000,
@@ -37,7 +39,7 @@ export default function DailyCheckIn({ onAddHabit }: DailyCheckInProps) {
   const handleNumericSubmit = (habitId: string, habitName: string) => {
     const value = parseFloat(numericInputs[habitId] || '0');
     if (!isNaN(value) && value >= 0) {
-      setNumericValue(habitId, today, value);
+      setNumericValue(habitId, selectedDate, value);
       toast.success(`✅ ${habitName}: ${value} recorded!`, {
         duration: 2000,
       });
@@ -67,11 +69,11 @@ export default function DailyCheckIn({ onAddHabit }: DailyCheckInProps) {
   };
 
   const completedCheckboxCount = activeHabits.filter((h) =>
-    h.type === HabitType.CHECKBOX && isHabitCompletedOnDate(h.id, today)
+    h.type === HabitType.CHECKBOX && isHabitCompletedOnDate(h.id, selectedDate)
   ).length;
 
   const completedNumericCount = activeHabits.filter((h) =>
-    h.type === HabitType.NUMERIC && getNumericValue(h.id, today) !== undefined
+    h.type === HabitType.NUMERIC && getNumericValue(h.id, selectedDate) !== undefined
   ).length;
 
   const totalCompleted = completedCheckboxCount + completedNumericCount;
@@ -101,6 +103,9 @@ export default function DailyCheckIn({ onAddHabit }: DailyCheckInProps) {
 
   return (
     <div className="space-y-6">
+      {/* Date Navigation */}
+      <DateNavigator />
+
       {/* Progress Overview */}
       <Card className="p-6">
         <div className="flex items-center justify-between mb-2">
@@ -127,9 +132,9 @@ export default function DailyCheckIn({ onAddHabit }: DailyCheckInProps) {
         {activeHabits.map((habit) => {
           const isCheckbox = habit.type === HabitType.CHECKBOX || !habit.type;
           const isCompleted = isCheckbox
-            ? isHabitCompletedOnDate(habit.id, today)
-            : getNumericValue(habit.id, today) !== undefined;
-          const numericValue = getNumericValue(habit.id, today);
+            ? isHabitCompletedOnDate(habit.id, selectedDate)
+            : getNumericValue(habit.id, selectedDate) !== undefined;
+          const numericValue = getNumericValue(habit.id, selectedDate);
           const currentInput = numericInputs[habit.id] || '';
 
           return (
@@ -281,7 +286,7 @@ export default function DailyCheckIn({ onAddHabit }: DailyCheckInProps) {
               Perfect Day!
             </h3>
             <p className="text-yellow-700 dark:text-yellow-300">
-              You've completed all your habits today. Keep up the amazing work!
+              You've completed all your habits selectedDate. Keep up the amazing work!
             </p>
           </div>
         </Card>

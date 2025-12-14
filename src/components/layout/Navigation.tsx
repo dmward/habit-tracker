@@ -1,9 +1,10 @@
 import { NavLink } from 'react-router-dom';
-import { Home, BarChart3, List, Settings } from 'lucide-react';
+import { Home, Calendar, BarChart3, List, Settings } from 'lucide-react';
 import clsx from 'clsx';
 
 const navItems = [
   { to: '/', icon: Home, label: 'Dashboard' },
+  { to: '/calendar', icon: Calendar, label: 'Calendar' },
   { to: '/habits', icon: List, label: 'Habits' },
   { to: '/analytics', icon: BarChart3, label: 'Analytics' },
   { to: '/settings', icon: Settings, label: 'Settings' },
