@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Hash } from 'lucide-react';
 import { HABIT_TEMPLATES, CATEGORY_LABELS } from '../../constants/habits';
-import { HabitCategory, type HabitTemplate } from '../../types/habit';
+import { HabitCategory, HabitType, type HabitTemplate } from '../../types/habit';
 import { useHabitStore } from '../../store/habitStore';
 import Card from '../common/Card';
 import Button from '../common/Button';
@@ -29,8 +29,14 @@ export default function HabitSelector({ isOpen, onClose }: HabitSelectorProps) {
       icon: template.icon,
       color: template.suggestedColor,
       category: template.category,
+      type: template.type || HabitType.CHECKBOX,
       reminderEnabled: false,
       archived: false,
+      // Numeric habit fields
+      unit: template.unit,
+      targetValue: template.targetValue,
+      minValue: template.minValue,
+      maxValue: template.maxValue,
     });
     toast.success(`Added "${template.name}" to your habits!`);
     onClose();
@@ -84,15 +90,23 @@ export default function HabitSelector({ isOpen, onClose }: HabitSelectorProps) {
                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                     {template.description}
                   </p>
-                  <span
-                    className="inline-block mt-2 px-2 py-1 text-xs rounded-full"
-                    style={{
-                      backgroundColor: `${template.suggestedColor}20`,
-                      color: template.suggestedColor,
-                    }}
-                  >
-                    {CATEGORY_LABELS[template.category]}
-                  </span>
+                  <div className="flex items-center gap-2 mt-2 flex-wrap">
+                    <span
+                      className="inline-block px-2 py-1 text-xs rounded-full"
+                      style={{
+                        backgroundColor: `${template.suggestedColor}20`,
+                        color: template.suggestedColor,
+                      }}
+                    >
+                      {CATEGORY_LABELS[template.category]}
+                    </span>
+                    {template.type === HabitType.NUMERIC && (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                        <Hash className="w-3 h-3" />
+                        {template.targetValue ? `Target: ${template.targetValue} ${template.unit}` : 'Numeric'}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <Plus className="w-5 h-5 text-gray-400 flex-shrink-0" />
               </div>

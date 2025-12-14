@@ -25,6 +25,8 @@ interface HabitState {
 
   // Completion operations
   toggleCompletion: (habitId: string, date: string) => void;
+  setNumericValue: (habitId: string, date: string, value: number) => void;
+  getNumericValue: (habitId: string, date: string) => number | undefined;
   updateCompletion: (habitId: string, date: string, data: Partial<HabitCompletion>) => void;
   getCompletionsForDate: (date: string) => HabitCompletion[];
   getCompletionsForHabit: (habitId: string) => HabitCompletion[];
@@ -135,6 +137,48 @@ export const useHabitStore = create<HabitState>()(
         }
       },
 
+      setNumericValue: (habitId, date, value) => {
+        const { completions } = get();
+        const existing = completions.find(
+          (c) => c.habitId === habitId && c.date === date
+        );
+
+        if (existing) {
+          // Update existing completion with value
+          set((state) => ({
+            completions: state.completions.map((c) =>
+              c.habitId === habitId && c.date === date
+                ? {
+                    ...c,
+                    value,
+                    completed: true,
+                    completedAt: new Date().toISOString(),
+                  }
+                : c
+            ),
+          }));
+        } else {
+          // Create new completion with value
+          const newCompletion: HabitCompletion = {
+            habitId,
+            date,
+            completed: true,
+            completedAt: new Date().toISOString(),
+            value,
+          };
+          set((state) => ({
+            completions: [...state.completions, newCompletion],
+          }));
+        }
+      },
+
+      getNumericValue: (habitId, date) => {
+        const completion = get().completions.find(
+          (c) => c.habitId === habitId && c.date === date
+        );
+        return completion?.value;
+      },
+
       updateCompletion: (habitId, date, data) => {
         set((state) => ({
           completions: state.completions.map((c) =>
@@ -160,7 +204,7 @@ export const useHabitStore = create<HabitState>()(
     }),
     {
       name: 'habit-tracker-storage',
-      version: 2, // Increment version for migration
+      version: 3, // Increment version for numeric habits
     }
   )
 );

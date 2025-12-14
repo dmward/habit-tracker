@@ -1,5 +1,5 @@
 import { useState, FormEvent } from 'react';
-import { HabitCategory, type Habit } from '../../types/habit';
+import { HabitCategory, HabitType, type Habit } from '../../types/habit';
 import { useHabitStore } from '../../store/habitStore';
 import { CATEGORY_LABELS, CATEGORY_COLORS } from '../../constants/habits';
 import Button from '../common/Button';
@@ -25,10 +25,19 @@ export default function HabitForm({ isOpen, onClose, habit }: HabitFormProps) {
   const [category, setCategory] = useState<HabitCategory>(
     habit?.category || HabitCategory.CUSTOM
   );
+  const [habitType, setHabitType] = useState<HabitType>(
+    habit?.type || HabitType.CHECKBOX
+  );
   const [reminderTime, setReminderTime] = useState(habit?.reminderTime || '');
   const [reminderEnabled, setReminderEnabled] = useState(
     habit?.reminderEnabled || false
   );
+
+  // Numeric habit fields
+  const [unit, setUnit] = useState(habit?.unit || '');
+  const [targetValue, setTargetValue] = useState<number | string>(habit?.targetValue ?? '');
+  const [minValue, setMinValue] = useState<number | string>(habit?.minValue ?? '');
+  const [maxValue, setMaxValue] = useState<number | string>(habit?.maxValue ?? '');
 
   const addHabit = useHabitStore((state) => state.addHabit);
   const updateHabit = useHabitStore((state) => state.updateHabit);
@@ -41,15 +50,26 @@ export default function HabitForm({ isOpen, onClose, habit }: HabitFormProps) {
       return;
     }
 
+    if (habitType === HabitType.NUMERIC && !unit.trim()) {
+      toast.error('Please enter a unit for your numeric habit');
+      return;
+    }
+
     const habitData = {
       name: name.trim(),
       description: description.trim(),
       icon,
       color,
       category,
+      type: habitType,
       reminderTime: reminderEnabled ? reminderTime : undefined,
       reminderEnabled,
       archived: false,
+      // Numeric habit fields
+      unit: habitType === HabitType.NUMERIC ? unit.trim() : undefined,
+      targetValue: habitType === HabitType.NUMERIC && targetValue !== '' ? Number(targetValue) : undefined,
+      minValue: habitType === HabitType.NUMERIC && minValue !== '' ? Number(minValue) : undefined,
+      maxValue: habitType === HabitType.NUMERIC && maxValue !== '' ? Number(maxValue) : undefined,
     };
 
     if (habit) {
@@ -70,8 +90,13 @@ export default function HabitForm({ isOpen, onClose, habit }: HabitFormProps) {
     setIcon('✅');
     setColor('#6366F1');
     setCategory(HabitCategory.CUSTOM);
+    setHabitType(HabitType.CHECKBOX);
     setReminderTime('');
     setReminderEnabled(false);
+    setUnit('');
+    setTargetValue('');
+    setMinValue('');
+    setMaxValue('');
   };
 
   return (
@@ -165,6 +190,99 @@ export default function HabitForm({ isOpen, onClose, habit }: HabitFormProps) {
             ))}
           </select>
         </div>
+
+        {/* Habit Type */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Tracking Type
+          </label>
+          <div className="flex gap-4">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                value={HabitType.CHECKBOX}
+                checked={habitType === HabitType.CHECKBOX}
+                onChange={(e) => setHabitType(e.target.value as HabitType)}
+                className="w-4 h-4 text-primary-600 focus:ring-primary-500"
+              />
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                Checkbox (Yes/No)
+              </span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                value={HabitType.NUMERIC}
+                checked={habitType === HabitType.NUMERIC}
+                onChange={(e) => setHabitType(e.target.value as HabitType)}
+                className="w-4 h-4 text-primary-600 focus:ring-primary-500"
+              />
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                Numeric (Track a number)
+              </span>
+            </label>
+          </div>
+        </div>
+
+        {/* Numeric Habit Fields */}
+        {habitType === HabitType.NUMERIC && (
+          <div className="space-y-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Unit *
+              </label>
+              <input
+                type="text"
+                value={unit}
+                onChange={(e) => setUnit(e.target.value)}
+                placeholder="e.g., glasses, hours, pages, rating"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                required
+              />
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Min Value
+                </label>
+                <input
+                  type="number"
+                  value={minValue}
+                  onChange={(e) => setMinValue(e.target.value)}
+                  placeholder="0"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Target
+                </label>
+                <input
+                  type="number"
+                  value={targetValue}
+                  onChange={(e) => setTargetValue(e.target.value)}
+                  placeholder="Optional"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Max Value
+                </label>
+                <input
+                  type="number"
+                  value={maxValue}
+                  onChange={(e) => setMaxValue(e.target.value)}
+                  placeholder="Optional"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-gray-600 dark:text-gray-400">
+              Set min/max values to control the input range. Target is optional and for reference.
+            </p>
+          </div>
+        )}
 
         {/* Reminder */}
         <div className="space-y-2">
