@@ -30,14 +30,14 @@ export default function MomentCard() {
       const timer = setTimeout(() => setSaveStatus('idle'), 2000);
       return () => clearTimeout(timer);
     }
-  }, [debouncedContent, selectedDate]);
+  }, [debouncedContent, selectedDate, getEntryForDate, saveEntry]);
 
   // Update local state when date changes
   useEffect(() => {
     const entry = getEntryForDate(selectedDate);
     setContent(entry?.content || '');
     setSaveStatus('idle');
-  }, [selectedDate]);
+  }, [selectedDate, getEntryForDate]);
 
   return (
     <Card className="p-6">
