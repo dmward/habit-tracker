@@ -1,6 +1,8 @@
-import { Bell, BellOff, Download, Upload } from 'lucide-react';
+import { useState } from 'react';
+import { Bell, BellOff, Download, Upload, Trash2 } from 'lucide-react';
 import { useNotifications } from '../hooks/useNotifications';
 import { useHabitStore } from '../store/habitStore';
+import { useJournalStore } from '../store/journalStore';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import toast from 'react-hot-toast';
@@ -9,6 +11,8 @@ import { format } from 'date-fns';
 export default function Settings() {
   const { permission, requestPermission, isSupported } = useNotifications();
   const { habits, completions } = useHabitStore();
+  const { entries } = useJournalStore();
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   const handleRequestPermission = async () => {
     const granted = await requestPermission();
@@ -71,6 +75,14 @@ export default function Settings() {
   };
 
   const habitsWithReminders = habits.filter((h) => h.reminderEnabled && !h.archived);
+
+  const handleResetAllData = () => {
+    // Clear all localStorage data
+    localStorage.removeItem('habit-tracker-storage');
+    localStorage.removeItem('journal-storage');
+    toast.success('All data cleared! Refreshing...');
+    setTimeout(() => window.location.reload(), 1000);
+  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -159,7 +171,54 @@ export default function Settings() {
           </p>
           <p>Total Habits: {habits.length}</p>
           <p>Total Check-ins: {completions.filter((c) => c.completed).length}</p>
+          <p>Total Journal Entries: {entries.length}</p>
         </div>
+      </Card>
+
+      {/* Danger Zone */}
+      <Card className="p-6 border-red-200 dark:border-red-800">
+        <h2 className="text-lg font-semibold text-red-600 dark:text-red-400 mb-4">
+          Danger Zone
+        </h2>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Permanently delete all your habits, completions, and journal entries. This action cannot be undone.
+        </p>
+        {!showResetConfirm ? (
+          <Button
+            variant="outline"
+            onClick={() => setShowResetConfirm(true)}
+            className="gap-2 border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+          >
+            <Trash2 className="w-4 h-4" />
+            Reset All Data
+          </Button>
+        ) : (
+          <div className="space-y-3">
+            <p className="text-sm font-semibold text-red-600 dark:text-red-400">
+              Are you sure? This will delete:
+            </p>
+            <ul className="text-sm text-gray-600 dark:text-gray-400 list-disc list-inside space-y-1">
+              <li>{habits.length} habit(s)</li>
+              <li>{completions.filter((c) => c.completed).length} completion(s)</li>
+              <li>{entries.length} journal entry/entries</li>
+            </ul>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setShowResetConfirm(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleResetAllData}
+                className="border-red-500 dark:border-red-600 text-red-600 dark:text-red-400 hover:bg-red-600 hover:text-white dark:hover:bg-red-600"
+              >
+                Yes, Delete Everything
+              </Button>
+            </div>
+          </div>
+        )}
       </Card>
     </div>
   );
