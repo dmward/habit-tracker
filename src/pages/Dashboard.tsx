@@ -3,6 +3,7 @@ import { format, parseISO } from 'date-fns';
 import { useHabitStore, getCurrentMonth } from '../store/habitStore';
 import { useDateSelection } from '../hooks/useDateSelection';
 import DailyCheckIn from '../components/habits/DailyCheckIn';
+import MomentCard from '../components/journal/MomentCard';
 import HabitSelector from '../components/habits/HabitSelector';
 import MonthlyPlanner from '../components/habits/MonthlyPlanner';
 
@@ -36,6 +37,11 @@ export default function Dashboard() {
       </div>
 
       <DailyCheckIn onAddHabit={() => setShowTemplates(true)} />
+
+      {/* Daily Journal */}
+      <div className="mt-6">
+        <MomentCard />
+      </div>
 
       <HabitSelector isOpen={showTemplates} onClose={() => setShowTemplates(false)} />
       <MonthlyPlanner

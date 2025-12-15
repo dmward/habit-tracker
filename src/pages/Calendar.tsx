@@ -5,6 +5,7 @@ import { useDateSelection } from '../hooks/useDateSelection';
 import { useHabitStore } from '../store/habitStore';
 import CalendarGrid from '../components/calendar/CalendarGrid';
 import CalendarLegend from '../components/calendar/CalendarLegend';
+import MomentCard from '../components/journal/MomentCard';
 import Button from '../components/common/Button';
 
 export default function Calendar() {
@@ -73,17 +74,24 @@ export default function Calendar() {
 
       {/* Calendar Content */}
       {activeHabits.length > 0 ? (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Calendar Grid */}
-          <div className="lg:col-span-3">
-            <CalendarGrid month={viewingMonth} selectedDate={selectedDate} />
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Calendar Grid */}
+            <div className="lg:col-span-3">
+              <CalendarGrid month={viewingMonth} selectedDate={selectedDate} />
+            </div>
+
+            {/* Legend */}
+            <div className="lg:col-span-1">
+              <CalendarLegend />
+            </div>
           </div>
 
-          {/* Legend */}
-          <div className="lg:col-span-1">
-            <CalendarLegend />
+          {/* Daily Journal */}
+          <div className="mt-6">
+            <MomentCard />
           </div>
-        </div>
+        </>
       ) : (
         <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="text-6xl mb-4">📅</div>
