@@ -69,7 +69,7 @@ export default function DailyCheckIn({ onAddHabit }: DailyCheckInProps) {
   };
 
   const completedCheckboxCount = activeHabits.filter((h) =>
-    h.type === HabitType.CHECKBOX && isHabitCompletedOnDate(h.id, selectedDate)
+    (h.type === HabitType.CHECKBOX || !h.type) && isHabitCompletedOnDate(h.id, selectedDate)
   ).length;
 
   const completedNumericCount = activeHabits.filter((h) =>
