@@ -213,7 +213,7 @@ export default function DailyCheckIn({ onAddHabit }: DailyCheckInProps) {
                   </button>
                 ) : (
                   <div className="flex items-center gap-2">
-                    {isCompleted ? (
+                    {isCompleted && !currentInput ? (
                       <div className="flex items-center gap-2">
                         <span className="text-2xl font-bold text-green-700 dark:text-green-400">
                           {numericValue}
