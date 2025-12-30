@@ -3,6 +3,9 @@ import { Bell, BellOff, Download, Upload, Trash2 } from 'lucide-react';
 import { useNotifications } from '../hooks/useNotifications';
 import { useHabitStore } from '../store/habitStore';
 import { useJournalStore } from '../store/journalStore';
+import { useAuthStore } from '../store/authStore';
+import { habitsService, completionsService, journalService, bulkService } from '../lib/supabaseData';
+import { habitToDbInsert } from '../types/database';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import toast from 'react-hot-toast';
@@ -10,9 +13,12 @@ import { format } from 'date-fns';
 
 export default function Settings() {
   const { permission, requestPermission, isSupported } = useNotifications();
-  const { habits, completions } = useHabitStore();
-  const { entries } = useJournalStore();
+  const { habits, completions, initialize: initHabits } = useHabitStore();
+  const { entries, initialize: initJournal } = useJournalStore();
+  const { user } = useAuthStore();
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   const handleRequestPermission = async () => {
     const granted = await requestPermission();
@@ -27,6 +33,7 @@ export default function Settings() {
     const data = {
       habits,
       completions,
+      journalEntries: entries,
       exportDate: new Date().toISOString(),
     };
 
@@ -45,28 +52,74 @@ export default function Settings() {
   };
 
   const handleImportData = () => {
+    if (!user) {
+      toast.error('You must be logged in to import data');
+      return;
+    }
+
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'application/json';
-    input.onchange = (e) => {
+    input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
 
+      setIsImporting(true);
       const reader = new FileReader();
-      reader.onload = (event) => {
+      reader.onload = async (event) => {
         try {
           const data = JSON.parse(event.target?.result as string);
-          localStorage.setItem('habit-tracker-storage', JSON.stringify({
-            state: {
-              habits: data.habits || [],
-              completions: data.completions || [],
-            },
-            version: 1,
-          }));
-          toast.success('Data imported! Refreshing...');
-          setTimeout(() => window.location.reload(), 1000);
+          const importedHabits = data.habits || [];
+          const importedCompletions = data.completions || [];
+          const importedJournalEntries = data.journalEntries || [];
+
+          // Map old habit IDs to new IDs
+          const oldIdToNewId: Record<string, string> = {};
+
+          // Import habits
+          for (const habit of importedHabits) {
+            const dbHabit = await habitsService.create(
+              habitToDbInsert(habit, user.id)
+            );
+            oldIdToNewId[habit.id] = dbHabit.id;
+          }
+
+          // Import completions with mapped habit IDs
+          for (const completion of importedCompletions) {
+            const newHabitId = oldIdToNewId[completion.habitId];
+            if (newHabitId) {
+              await completionsService.upsert({
+                user_id: user.id,
+                habit_id: newHabitId,
+                date: completion.date,
+                completed: completion.completed,
+                completed_at: completion.completedAt ?? null,
+                note: completion.note ?? null,
+                value: completion.value ?? null,
+              });
+            }
+          }
+
+          // Import journal entries
+          for (const entry of importedJournalEntries) {
+            await journalService.upsert({
+              user_id: user.id,
+              date: entry.date,
+              content: entry.content,
+            });
+          }
+
+          // Reload data from Supabase
+          await Promise.all([initHabits(), initJournal()]);
+
+          toast.success(
+            `Imported ${importedHabits.length} habits, ${importedCompletions.length} completions, and ${importedJournalEntries.length} journal entries`
+          );
         } catch (error) {
+          console.error('Import error:', error);
           toast.error('Failed to import data');
+        } finally {
+          setIsImporting(false);
         }
       };
       reader.readAsText(file);
@@ -76,12 +129,28 @@ export default function Settings() {
 
   const habitsWithReminders = habits.filter((h) => h.reminderEnabled && !h.archived);
 
-  const handleResetAllData = () => {
-    // Clear all localStorage data
-    localStorage.removeItem('habit-tracker-storage');
-    localStorage.removeItem('journal-storage');
-    toast.success('All data cleared! Refreshing...');
-    setTimeout(() => window.location.reload(), 1000);
+  const handleResetAllData = async () => {
+    if (!user) return;
+
+    setIsResetting(true);
+    try {
+      await bulkService.deleteAllUserData();
+
+      // Reset local stores
+      useHabitStore.getState().reset();
+      useJournalStore.getState().reset();
+
+      // Reinitialize to get empty state
+      await Promise.all([initHabits(), initJournal()]);
+
+      toast.success('All data deleted successfully');
+      setShowResetConfirm(false);
+    } catch (error) {
+      console.error('Reset error:', error);
+      toast.error('Failed to delete data');
+    } finally {
+      setIsResetting(false);
+    }
   };
 
   return (
@@ -150,9 +219,14 @@ export default function Settings() {
             <Download className="w-4 h-4" />
             Export Data
           </Button>
-          <Button variant="outline" onClick={handleImportData} className="gap-2">
+          <Button
+            variant="outline"
+            onClick={handleImportData}
+            disabled={isImporting}
+            className="gap-2"
+          >
             <Upload className="w-4 h-4" />
-            Import Data
+            {isImporting ? 'Importing...' : 'Import Data'}
           </Button>
         </div>
       </Card>
@@ -166,9 +240,7 @@ export default function Settings() {
           <p>
             <strong>Habit Tracker</strong> - Build better habits, one day at a time
           </p>
-          <p>
-            All your data is stored locally in your browser. No account required!
-          </p>
+          <p>Your data is securely stored in the cloud and synced across devices.</p>
           <p>Total Habits: {habits.length}</p>
           <p>Total Check-ins: {completions.filter((c) => c.completed).length}</p>
           <p>Total Journal Entries: {entries.length}</p>
@@ -181,7 +253,8 @@ export default function Settings() {
           Danger Zone
         </h2>
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-          Permanently delete all your habits, completions, and journal entries. This action cannot be undone.
+          Permanently delete all your habits, completions, and journal entries. This
+          action cannot be undone.
         </p>
         {!showResetConfirm ? (
           <Button
@@ -206,15 +279,17 @@ export default function Settings() {
               <Button
                 variant="outline"
                 onClick={() => setShowResetConfirm(false)}
+                disabled={isResetting}
               >
                 Cancel
               </Button>
               <Button
                 variant="outline"
                 onClick={handleResetAllData}
+                disabled={isResetting}
                 className="border-red-500 dark:border-red-600 text-red-600 dark:text-red-400 hover:bg-red-600 hover:text-white dark:hover:bg-red-600"
               >
-                Yes, Delete Everything
+                {isResetting ? 'Deleting...' : 'Yes, Delete Everything'}
               </Button>
             </div>
           </div>

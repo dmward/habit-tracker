@@ -8,11 +8,13 @@ import HabitsManager from './pages/HabitsManager';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import MigrationPrompt from './components/common/MigrationPrompt';
 
 function App() {
   return (
     <BrowserRouter>
       <Toaster position="top-right" />
+      <MigrationPrompt />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route
