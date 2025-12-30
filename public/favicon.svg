@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Option 3: Calendar Grid with Checkmark -->
+  <!-- Represents daily habit tracking -->
+
+  <!-- Rounded square background -->
+  <rect x="2" y="2" width="28" height="28" rx="6" fill="#6366F1"/>
+
+  <!-- Calendar header bar -->
+  <rect x="5" y="5" width="22" height="5" rx="1" fill="#4F46E5"/>
+
+  <!-- Calendar dots (representing days) -->
+  <!-- Row 1 -->
+  <circle cx="9" cy="15" r="2" fill="#A5B4FC"/>
+  <circle cx="16" cy="15" r="2" fill="#A5B4FC"/>
+  <circle cx="23" cy="15" r="2" fill="#A5B4FC"/>
+
+  <!-- Row 2 -->
+  <circle cx="9" cy="22" r="2" fill="#A5B4FC"/>
+  <circle cx="16" cy="22" r="2" fill="#10B981"/>
+  <circle cx="23" cy="22" r="2" fill="#A5B4FC"/>
+
+  <!-- Center checkmark on the green dot -->
+  <path
+    d="M14 22L15.5 23.5L18 21"
+    stroke="white"
+    stroke-width="1.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+  />
+</svg>
