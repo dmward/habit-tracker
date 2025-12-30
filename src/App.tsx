@@ -6,13 +6,23 @@ import Calendar from './pages/Calendar';
 import Analytics from './pages/Analytics';
 import HabitsManager from './pages/HabitsManager';
 import Settings from './pages/Settings';
+import Login from './pages/Login';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 
 function App() {
   return (
     <BrowserRouter>
       <Toaster position="top-right" />
       <Routes>
-        <Route path="/" element={<Layout />}>
+        <Route path="/login" element={<Login />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Layout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<Dashboard />} />
           <Route path="calendar" element={<Calendar />} />
           <Route path="habits" element={<HabitsManager />} />

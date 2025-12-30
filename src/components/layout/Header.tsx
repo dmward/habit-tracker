@@ -1,8 +1,10 @@
-import { CheckCircle2, Moon, Sun } from 'lucide-react';
+import { CheckCircle2, Moon, Sun, LogOut } from 'lucide-react';
 import { useDarkMode } from '../../hooks/useDarkMode';
+import { useAuthStore } from '../../store/authStore';
 
 export default function Header() {
   const { isDark, toggle } = useDarkMode();
+  const { user, signOut } = useAuthStore();
 
   return (
     <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
@@ -33,6 +35,16 @@ export default function Header() {
                 <Moon className="w-5 h-5 text-gray-600 dark:text-gray-300" />
               )}
             </button>
+            {user && (
+              <button
+                onClick={() => signOut()}
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                aria-label="Sign out"
+                title={`Sign out (${user.email})`}
+              >
+                <LogOut className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+              </button>
+            )}
           </div>
         </div>
       </div>
