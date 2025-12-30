@@ -1,7 +1,8 @@
-import { useState, FormEvent } from 'react';
+import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { HabitCategory, HabitType, type Habit } from '../../types/habit';
 import { useHabitStore } from '../../store/habitStore';
-import { CATEGORY_LABELS, CATEGORY_COLORS } from '../../constants/habits';
+import { CATEGORY_LABELS } from '../../constants/habits';
 import Button from '../common/Button';
 import Modal from '../common/Modal';
 import toast from 'react-hot-toast';

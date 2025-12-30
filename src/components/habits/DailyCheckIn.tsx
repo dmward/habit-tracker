@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { format } from 'date-fns';
 import { CheckCircle2, Circle, Plus, Minus } from 'lucide-react';
 import { useHabitStore } from '../../store/habitStore';
 import { HabitType } from '../../types/habit';

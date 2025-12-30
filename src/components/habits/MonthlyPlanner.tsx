@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { format, addMonths, subMonths } from 'date-fns';
+import { format, subMonths } from 'date-fns';
 import { Calendar, ArrowRight, Plus } from 'lucide-react';
 import { useHabitStore, getCurrentMonth } from '../../store/habitStore';
 import Modal from '../common/Modal';

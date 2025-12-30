@@ -1,18 +1,22 @@
-export enum HabitCategory {
-  HEALTH = 'health',
-  FITNESS = 'fitness',
-  PRODUCTIVITY = 'productivity',
-  MINDFULNESS = 'mindfulness',
-  LEARNING = 'learning',
-  SOCIAL = 'social',
-  CREATIVE = 'creative',
-  CUSTOM = 'custom',
-}
+export const HabitCategory = {
+  HEALTH: 'health',
+  FITNESS: 'fitness',
+  PRODUCTIVITY: 'productivity',
+  MINDFULNESS: 'mindfulness',
+  LEARNING: 'learning',
+  SOCIAL: 'social',
+  CREATIVE: 'creative',
+  CUSTOM: 'custom',
+} as const;
 
-export enum HabitType {
-  CHECKBOX = 'checkbox', // Simple yes/no completion
-  NUMERIC = 'numeric',   // Requires a number value
-}
+export type HabitCategory = (typeof HabitCategory)[keyof typeof HabitCategory];
+
+export const HabitType = {
+  CHECKBOX: 'checkbox', // Simple yes/no completion
+  NUMERIC: 'numeric',   // Requires a number value
+} as const;
+
+export type HabitType = (typeof HabitType)[keyof typeof HabitType];
 
 export interface Habit {
   id: string;

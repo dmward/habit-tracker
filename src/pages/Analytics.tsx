@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { useHabitStore, getCurrentMonth } from '../store/habitStore';
+import { useHabitStore } from '../store/habitStore';
 import StatsOverview from '../components/analytics/StatsOverview';
 import CompletionChart from '../components/analytics/CompletionChart';
 import StreakDisplay from '../components/analytics/StreakDisplay';

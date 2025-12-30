@@ -4,7 +4,6 @@ import { HABIT_TEMPLATES, CATEGORY_LABELS } from '../../constants/habits';
 import { HabitCategory, HabitType, type HabitTemplate } from '../../types/habit';
 import { useHabitStore } from '../../store/habitStore';
 import Card from '../common/Card';
-import Button from '../common/Button';
 import Modal from '../common/Modal';
 import toast from 'react-hot-toast';
 

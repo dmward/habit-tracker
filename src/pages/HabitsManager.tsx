@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Plus, Library } from 'lucide-react';
 import { format } from 'date-fns';
-import { useHabitStore, getCurrentMonth } from '../store/habitStore';
+import { useHabitStore } from '../store/habitStore';
 import HabitList from '../components/habits/HabitList';
 import HabitForm from '../components/habits/HabitForm';
 import HabitSelector from '../components/habits/HabitSelector';
@@ -16,7 +16,6 @@ export default function HabitsManager() {
   const activeHabits = currentMonthHabits.filter((h) => !h.archived);
   const archivedHabits = currentMonthHabits.filter((h) => h.archived);
 
-  const currentMonth = getCurrentMonth();
   const monthName = format(new Date(), 'MMMM yyyy');
 
   return (
