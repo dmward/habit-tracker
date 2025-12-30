@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { BookOpen } from 'lucide-react';
 import { useDateSelection } from '../../hooks/useDateSelection';
 import { useJournalStore } from '../../store/journalStore';
@@ -13,11 +13,20 @@ export default function MomentCard() {
   const [content, setContent] = useState(existingEntry?.content || '');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
 
+  // Track which date the current content belongs to
+  const contentDateRef = useRef(selectedDate);
+
   // Debounce content changes - waits 1 second after user stops typing
   const debouncedContent = useDebounce(content, 1000);
 
   // Auto-save when debounced content changes
   useEffect(() => {
+    // Only save if the debounced content is for the current date
+    // This prevents saving stale content to the wrong date when switching days
+    if (contentDateRef.current !== selectedDate) {
+      return;
+    }
+
     const entry = getEntryForDate(selectedDate);
 
     // Only save if content is different from what's stored
@@ -38,6 +47,12 @@ export default function MomentCard() {
     setContent(entry?.content || '');
     setSaveStatus('idle');
   }, [selectedDate, getEntryForDate]);
+
+  // Update content and track which date it belongs to
+  const handleContentChange = (newContent: string) => {
+    setContent(newContent);
+    contentDateRef.current = selectedDate;
+  };
 
   return (
     <Card className="p-6">
@@ -62,7 +77,7 @@ export default function MomentCard() {
 
       <textarea
         value={content}
-        onChange={(e) => setContent(e.target.value)}
+        onChange={(e) => handleContentChange(e.target.value)}
         placeholder="What happened today? Any thoughts, feelings, or memorable moments worth remembering..."
         className="w-full min-h-[150px] p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-y focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
         aria-label="Daily journal entry"
