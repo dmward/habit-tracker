@@ -10,6 +10,7 @@ import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
+import { buildInfo } from '../buildInfo';
 
 export default function Settings() {
   const { permission, requestPermission, isSupported } = useNotifications();
@@ -236,14 +237,48 @@ export default function Settings() {
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           About
         </h2>
-        <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-          <p>
-            <strong>Habit Tracker</strong> - Build better habits, one day at a time
-          </p>
-          <p>Your data is securely stored in the cloud and synced across devices.</p>
-          <p>Total Habits: {habits.length}</p>
-          <p>Total Check-ins: {completions.filter((c) => c.completed).length}</p>
-          <p>Total Journal Entries: {entries.length}</p>
+        <div className="space-y-4">
+          <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+            <p>
+              <strong>Habit Tracker</strong> - Build better habits, one day at a time
+            </p>
+            <p>Your data is securely stored in the cloud and synced across devices.</p>
+          </div>
+
+          {/* User Stats */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+            <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              Your Stats
+            </p>
+            <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+              <p>Total Habits: {habits.length}</p>
+              <p>Total Check-ins: {completions.filter((c) => c.completed).length}</p>
+              <p>Total Journal Entries: {entries.length}</p>
+            </div>
+          </div>
+
+          {/* Build Info */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+            <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              Build Information
+            </p>
+            <div className="space-y-1 text-xs text-gray-500 dark:text-gray-500 font-mono">
+              <p>Version: {buildInfo.version}</p>
+              <p>Build ID: {buildInfo.buildId}</p>
+              <p>
+                Build Date: {format(new Date(buildInfo.buildDate), 'MMM d, yyyy h:mm a')}
+              </p>
+              <p>Branch: {buildInfo.gitBranch}</p>
+              {buildInfo.environment !== 'production' && (
+                <p className="text-yellow-600 dark:text-yellow-500">
+                  Environment: {buildInfo.environment}
+                </p>
+              )}
+              <p className="break-all">
+                Supabase: {import.meta.env.VITE_SUPABASE_URL}
+              </p>
+            </div>
+          </div>
         </div>
       </Card>
 
