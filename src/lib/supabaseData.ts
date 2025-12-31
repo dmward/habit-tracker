@@ -198,9 +198,27 @@ export const journalService = {
 // ============================================
 export const bulkService = {
   async deleteAllUserData(): Promise<void> {
+    // Get the current user
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('No authenticated user');
+
     // Delete in order to respect foreign keys
-    await supabase.from('habit_completions').delete().neq('id', '');
-    await supabase.from('habits').delete().neq('id', '');
-    await supabase.from('journal_entries').delete().neq('id', '');
+    const { error: completionsError } = await supabase
+      .from('habit_completions')
+      .delete()
+      .eq('user_id', user.id);
+    if (completionsError) throw completionsError;
+
+    const { error: habitsError } = await supabase
+      .from('habits')
+      .delete()
+      .eq('user_id', user.id);
+    if (habitsError) throw habitsError;
+
+    const { error: journalError } = await supabase
+      .from('journal_entries')
+      .delete()
+      .eq('user_id', user.id);
+    if (journalError) throw journalError;
   },
 };
