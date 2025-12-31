@@ -29,8 +29,11 @@ A modern, feature-rich habit tracking web application built with React, TypeScri
 ### Prerequisites
 
 - Node.js 18+ and npm
+- Docker Desktop (for local Supabase)
 
-### Installation
+### Local Development Setup
+
+This project uses Supabase for the database. For local development, we use Supabase Local to avoid affecting production data.
 
 1. Navigate to the project directory:
 ```bash
@@ -42,12 +45,37 @@ cd habit-tracker
 npm install
 ```
 
-3. Start the development server:
+3. Start Supabase Local (requires Docker):
+```bash
+npm run supabase:start
+```
+
+4. Start the development server:
 ```bash
 npm run dev
 ```
 
-4. Open your browser and visit `http://localhost:5173`
+5. Open your browser and visit `http://localhost:5173`
+
+The local Supabase credentials are pre-configured in `.env.development`.
+
+### Local Supabase URLs
+
+| Service | URL | Purpose |
+|---------|-----|---------|
+| API | http://127.0.0.1:54321 | Supabase API endpoint |
+| Studio | http://127.0.0.1:54323 | Database GUI |
+| Inbucket | http://127.0.0.1:54324 | Email testing |
+
+### Creating a Test User
+
+Option 1: Through the UI
+1. Open Supabase Studio: http://127.0.0.1:54323
+2. Go to Authentication > Users
+3. Click "Add user" and create a test account
+
+Option 2: Through the app
+- Sign up through the app UI (confirmation emails go to Inbucket: http://127.0.0.1:54324)
 
 ## Usage
 
@@ -109,14 +137,18 @@ habit-tracker/
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint
+- `npm run supabase:start` - Start local Supabase
+- `npm run supabase:stop` - Stop local Supabase
+- `npm run supabase:status` - Check Supabase status
+- `npm run supabase:reset` - Reset database (re-run migrations)
 
 ## Data Storage
 
-All data is stored in your browser's localStorage. Your habits and completion data are:
-- Stored locally on your device
-- Never sent to any server
-- Persisted across browser sessions
-- Exportable for backup
+Data is stored in Supabase PostgreSQL:
+- **Development**: Local Supabase (Docker) - data stays on your machine
+- **Production**: Supabase Cloud - requires user authentication
+
+User data is secured with Row Level Security (RLS) policies ensuring users can only access their own data.
 
 ## Browser Notifications
 
