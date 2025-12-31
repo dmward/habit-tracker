@@ -10,14 +10,14 @@ export default function Header() {
     <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center gap-3">
-            <CheckCircle2 className="w-8 h-8 text-primary-600 dark:text-primary-400" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <CheckCircle2 className="w-7 h-7 sm:w-8 sm:h-8 text-primary-600 dark:text-primary-400" />
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
               Habit Tracker
             </h1>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600 dark:text-gray-300">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <span className="hidden sm:inline text-sm text-gray-600 dark:text-gray-300">
               {new Date().toLocaleDateString('en-US', {
                 weekday: 'long',
                 month: 'short',
