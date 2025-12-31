@@ -19,7 +19,8 @@ interface JournalState {
   getEntryForDate: (date: string) => JournalEntry | undefined;
 
   // Save or update entry (auto-creates if doesn't exist)
-  saveEntry: (date: string, content: string) => Promise<void>;
+  // Returns true on success, false on failure
+  saveEntry: (date: string, content: string) => Promise<boolean>;
 
   // Delete entry for a specific date
   deleteEntry: (date: string) => Promise<void>;
@@ -66,7 +67,7 @@ export const useJournalStore = create<JournalState>()((set, get) => ({
 
   saveEntry: async (date, content) => {
     const userId = useAuthStore.getState().user?.id;
-    if (!userId) return;
+    if (!userId) return false;
 
     const existing = get().entries.find((e) => e.date === date);
     const now = new Date().toISOString();
@@ -97,10 +98,12 @@ export const useJournalStore = create<JournalState>()((set, get) => ({
         date,
         content,
       });
+      return true;
     } catch (error) {
       // Reload from server on error
       await get().initialize();
       toast.error('Failed to save journal entry');
+      return false;
     }
   },
 
