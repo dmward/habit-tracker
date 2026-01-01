@@ -10,7 +10,7 @@ import MonthlyPlanner from '../components/habits/MonthlyPlanner';
 export default function Dashboard() {
   const [showTemplates, setShowTemplates] = useState(false);
   const [showMonthlyPlanner, setShowMonthlyPlanner] = useState(false);
-  const { hasHabitsForMonth } = useHabitStore();
+  const { hasHabitsForMonth, initialized } = useHabitStore();
   const { selectedDate } = useDateSelection();
 
   const currentMonth = getCurrentMonth();
@@ -18,12 +18,12 @@ export default function Dashboard() {
   const selectedDateObj = parseISO(selectedDate);
   const isToday = selectedDate === format(new Date(), 'yyyy-MM-dd');
 
-  // Show monthly planner if no habits for current month
+  // Show monthly planner if no habits for current month (only after store is initialized)
   useEffect(() => {
-    if (!hasCurrentMonthHabits) {
+    if (initialized && !hasCurrentMonthHabits) {
       setShowMonthlyPlanner(true);
     }
-  }, [hasCurrentMonthHabits]);
+  }, [initialized, hasCurrentMonthHabits]);
 
   return (
     <div className="max-w-4xl mx-auto">
