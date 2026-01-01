@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { format } from 'date-fns';
 import { useHabitStore } from '../store/habitStore';
 import { HabitType } from '../types/habit';
@@ -11,7 +11,7 @@ import Button from '../components/common/Button';
 export default function Analytics() {
   const [timeRange, setTimeRange] = useState<7 | 30 | 90>(30);
   const [chartType, setChartType] = useState<'line' | 'bar'>('line');
-  const { getCurrentMonthHabits, completions } = useHabitStore();
+  const { getCurrentMonthHabits, habits, completions } = useHabitStore();
 
   const currentMonthHabits = getCurrentMonthHabits();
   const monthName = format(new Date(), 'MMMM yyyy');
@@ -20,6 +20,19 @@ export default function Analytics() {
   const numericHabits = currentMonthHabits.filter(
     (h) => h.type === HabitType.NUMERIC && !h.archived
   );
+
+  // For each numeric habit, find all habit IDs with the same name (across months)
+  // This allows charts to show historical data from previous month versions
+  const numericHabitIds = useMemo(() => {
+    const idMap = new Map<string, string[]>();
+    numericHabits.forEach((habit) => {
+      const allIds = habits
+        .filter((h) => h.name === habit.name)
+        .map((h) => h.id);
+      idMap.set(habit.id, allIds);
+    });
+    return idMap;
+  }, [numericHabits, habits]);
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -86,6 +99,7 @@ export default function Analytics() {
                   <NumericHabitChart
                     key={habit.id}
                     habit={habit}
+                    habitIds={numericHabitIds.get(habit.id) || [habit.id]}
                     completions={completions}
                     days={timeRange}
                     chartType={chartType}

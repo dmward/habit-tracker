@@ -17,6 +17,7 @@ import Card from '../common/Card';
 
 interface NumericHabitChartProps {
   habit: Habit;
+  habitIds?: string[]; // All habit IDs to aggregate (for cross-month data)
   completions: HabitCompletion[];
   days?: number;
   chartType?: 'line' | 'bar';
@@ -24,10 +25,14 @@ interface NumericHabitChartProps {
 
 export default function NumericHabitChart({
   habit,
+  habitIds,
   completions,
   days = 30,
   chartType = 'line',
 }: NumericHabitChartProps) {
+  // Use provided habitIds or fall back to just the current habit's ID
+  const idsToMatch = habitIds || [habit.id];
+
   // Generate array of last N days
   const dateRange = Array.from({ length: days }, (_, i) => {
     const date = subDays(new Date(), days - 1 - i);
@@ -35,10 +40,11 @@ export default function NumericHabitChart({
   });
 
   // Build chart data: only include days where value was logged
+  // Check completions for any of the habit IDs (to get cross-month data)
   const chartData = dateRange
     .map((date) => {
       const completion = completions.find(
-        (c) => c.habitId === habit.id && c.date === date
+        (c) => idsToMatch.includes(c.habitId) && c.date === date
       );
       const value = completion?.value;
 
