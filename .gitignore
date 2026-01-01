@@ -36,3 +36,4 @@ supabase/.branches/
 
 # Test coverage
 coverage/
+.env*.local
