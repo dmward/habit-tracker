@@ -33,3 +33,6 @@ dist-ssr
 # Supabase
 supabase/.temp/
 supabase/.branches/
+
+# Test coverage
+coverage/

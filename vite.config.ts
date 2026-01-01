@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { execSync } from 'child_process'
@@ -38,5 +39,15 @@ export default defineConfig({
     'import.meta.env.VITE_GIT_COMMIT': JSON.stringify(getGitCommit()),
     'import.meta.env.VITE_GIT_BRANCH': JSON.stringify(getGitBranch()),
     'import.meta.env.VITE_APP_VERSION': JSON.stringify(getAppVersion()),
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.ts'],
+    include: ['src/**/*.{test,spec}.{js,ts,jsx,tsx}'],
+    coverage: {
+      reporter: ['text', 'json', 'html'],
+      exclude: ['node_modules/', 'src/test/'],
+    },
   },
 })
