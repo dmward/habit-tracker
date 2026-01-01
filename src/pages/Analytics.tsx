@@ -11,13 +11,13 @@ import Button from '../components/common/Button';
 export default function Analytics() {
   const [timeRange, setTimeRange] = useState<7 | 30 | 90>(30);
   const [chartType, setChartType] = useState<'line' | 'bar'>('line');
-  const { getCurrentMonthHabits, habits, completions } = useHabitStore();
+  const { getCurrentMonthHabits, completions } = useHabitStore();
 
   const currentMonthHabits = getCurrentMonthHabits();
   const monthName = format(new Date(), 'MMMM yyyy');
 
-  // Filter numeric habits (active only)
-  const numericHabits = habits.filter(
+  // Filter numeric habits from current month (active only)
+  const numericHabits = currentMonthHabits.filter(
     (h) => h.type === HabitType.NUMERIC && !h.archived
   );
 
