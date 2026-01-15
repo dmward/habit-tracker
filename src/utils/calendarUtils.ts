@@ -44,11 +44,15 @@ export function getDayCompletionRate(
   habits: Habit[],
   completions: HabitCompletion[]
 ): number {
-  const activeHabits = habits.filter(h => !h.archived);
+  // Extract the month from the date (YYYY-MM)
+  const dateMonth = date.substring(0, 7);
 
-  if (activeHabits.length === 0) return 0;
+  // Only count habits that belong to this month and are not archived
+  const activeHabitsForMonth = habits.filter(h => !h.archived && h.month === dateMonth);
 
-  const completedCount = activeHabits.filter(habit => {
+  if (activeHabitsForMonth.length === 0) return 0;
+
+  const completedCount = activeHabitsForMonth.filter(habit => {
     const completion = completions.find(
       c => c.habitId === habit.id && c.date === date
     );
@@ -60,7 +64,7 @@ export function getDayCompletionRate(
            (habit.type === HabitType.NUMERIC && completion?.value !== undefined);
   }).length;
 
-  return Math.round((completedCount / activeHabits.length) * 100);
+  return Math.round((completedCount / activeHabitsForMonth.length) * 100);
 }
 
 /**
