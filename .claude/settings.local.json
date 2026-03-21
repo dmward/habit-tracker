@@ -7,7 +7,17 @@
       "Bash(git push)",
       "Bash(npm install:*)",
       "Bash(vercel)",
-      "Bash(vercel:*)"
+      "Bash(vercel:*)",
+      "Bash(git fetch:*)",
+      "Bash(git rebase:*)",
+      "Bash(git stash:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(ls -la /Users/derekward/dev/habit-tracker/.env*)",
+      "Bash(git check-ignore:*)",
+      "Bash(find /Users/derekward/dev/habit-tracker -name *.key -o -name *.pem -o -name *secret* -o -name *private*)",
+      "Bash(grep -r \"password.*=\\\\|passwd.*=\\\\|pwd.*=\" /Users/derekward/dev/habit-tracker/src --include=*.ts --include=*.tsx)",
+      "Bash(chmod +x /Users/derekward/dev/habit-tracker/.git/hooks/pre-commit)"
     ]
   }
 }
