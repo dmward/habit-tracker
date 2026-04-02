@@ -17,13 +17,16 @@ export default function Dashboard() {
   const hasCurrentMonthHabits = hasHabitsForMonth(currentMonth);
   const selectedDateObj = parseISO(selectedDate);
   const isToday = selectedDate === format(new Date(), 'yyyy-MM-dd');
+  const selectedMonth = format(selectedDateObj, 'yyyy-MM');
+  const isCurrentMonth = selectedMonth === currentMonth;
 
   // Show monthly planner if no habits for current month (only after store is initialized)
+  // Only prompt when viewing the current month — don't interrupt browsing past months
   useEffect(() => {
-    if (initialized && !hasCurrentMonthHabits) {
+    if (initialized && isCurrentMonth && !hasCurrentMonthHabits) {
       setShowMonthlyPlanner(true);
     }
-  }, [initialized, hasCurrentMonthHabits]);
+  }, [initialized, isCurrentMonth, hasCurrentMonthHabits]);
 
   return (
     <div className="max-w-4xl mx-auto">

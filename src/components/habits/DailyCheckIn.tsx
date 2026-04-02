@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { format, parseISO } from 'date-fns';
 import { CheckCircle2, Circle, Plus, Minus } from 'lucide-react';
 import { useHabitStore } from '../../store/habitStore';
 import { HabitType } from '../../types/habit';
@@ -15,11 +16,12 @@ interface DailyCheckInProps {
 }
 
 export default function DailyCheckIn({ onAddHabit }: DailyCheckInProps) {
-  const { getCurrentMonthHabits, toggleCompletion, isHabitCompletedOnDate, setNumericValue, getNumericValue } = useHabitStore();
+  const { getHabitsForMonth, toggleCompletion, isHabitCompletedOnDate, setNumericValue, getNumericValue } = useHabitStore();
   const [numericInputs, setNumericInputs] = useState<Record<string, string>>({});
   const { selectedDate } = useDateSelection();
 
-  const activeHabits = getCurrentMonthHabits().filter((h) => !h.archived);
+  const selectedMonth = format(parseISO(selectedDate), 'yyyy-MM');
+  const activeHabits = getHabitsForMonth(selectedMonth).filter((h) => !h.archived);
 
   const handleCheckboxToggle = (habitId: string, habitName: string, currentlyCompleted: boolean) => {
     toggleCompletion(habitId, selectedDate);
